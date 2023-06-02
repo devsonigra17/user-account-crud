@@ -1,0 +1,247 @@
+<?php 
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $model=$objectManager->create('Dev\UserAccountCrud\Model\View');
+    $redirect = $objectManager->get('\Magento\Framework\App\Response\Http');
+    $array=$model->getCollection();
+?>
+<div class="" style="display: none;">
+    <div class="message message-success success updated-msg" data-ui-id="message-success" style="
+    font-size: 24px;
+    line-height: 24px;
+    color: #006400;
+    content: '\e60e';
+    font-family: 'luma-icons';
+    vertical-align: middle;
+    display: inline-block;
+    font-weight: normal;
+    overflow: hidden;
+    width: 90%;
+    text-align: left;
+    ">
+    </div>
+</div>
+<div style="text-align: right;">
+    <button class="primary" id="click-me">Add New Data</button>
+</div>
+<hr>
+
+
+<div id="popup-modal">
+    <!-- <form id="insert" action="../save" method="post"> -->
+    <div id="insert">
+
+        <div class="id">
+            <input type="hidden" class="insert_entity_id" value=""/>
+        </div>
+        <div class="name">
+            <div class="field-label">
+                <label for="name">First Name</label>
+            </div>
+            <div class="field-box">
+                <input type="text" id="name" class="insert_name" value="" required/>
+            </div>
+        </div>
+        <br/>
+        <div class="inline">
+            <div class="gender child">
+                <div class="field-label">
+                    <label for="gender">Gender</label>
+                </div>
+                <div class="field-box">
+                    <select class="control-select insert_gender" id="gender">
+                        <?php 
+                            $configArray = ['1' => 'Male', '2' => 'Female', '3' => 'Others'];
+                            foreach ($configArray as $key => $label) {
+                        ?> 
+                        <option value="<?php echo $key; ?>"><?php echo $label;?></option>
+                        <?php
+                            }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="status child">
+                <div class="field-label">
+                    <label for="status">Status</label>
+                </div>
+                <div class="field-box">
+                    <select class="control-select insert_status" id="status">
+                        <?php 
+                            $configArray = ['1' => 'Enable', '0' => 'Disable'];
+                            foreach ($configArray as $key => $label) {
+                        ?> 
+                        <option value="<?php echo $key; ?>"><?php echo $label;?></option>
+                        <?php
+                            } 
+                        ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!-- <hr/>
+        <div class="modal-footer" style="text-align: right;">
+            <button name="submit" class="btn primary">Insert</button>   
+        </div> -->
+    </div>
+    <!-- </form> -->
+</div>
+<table border="1">
+    <thead>
+        <th>SNO</th>
+        <th>First Name</th>
+        <th>Gender</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </thead>
+    <?php 
+    $sno = 1;
+    if($array->getSize()>0)
+    {
+        foreach($array as $data)
+        {
+            $id = $data->getEntityId();
+            $genderValue = $data->getGender();
+            $statusValue = $data->getStatus();
+            $gender = "";
+            if($genderValue == 1)
+            {
+                $gender = "Male";
+            }
+            if($genderValue == 2)
+            {
+                $gender = "Female";
+            }
+            if($genderValue == 3)
+            {
+                $gender = "Others";
+            }
+            $status = "";
+            if(($statusValue == 1) && ($statusValue != NULL))
+            {
+                $status = "Enabled";
+            }
+            if(($statusValue == 0) || ($statusValue == NULL))
+            {
+                $status = "Disabled";
+            }
+    ?>
+    <tbody>
+        <tr id="update-<?php echo $id; ?>">
+            <td><?php echo $sno++; ?></td>
+            <td><input type="text" id="update_name" name="name" class="input-text name" value="<?php echo $data->getName(); ?>"/></td>
+            <td>
+                <select class="control-select gender" id="update_gender" name="gender">
+                    <?php 
+                        $configArray = ['1' => 'Male', '2' => 'Female', '3' => 'Others'];
+                        foreach ($configArray as $key => $label) {
+                    ?> 
+                    <option value="<?php echo $key; ?>" <?php if($genderValue != NULL){if($genderValue == $key){echo "selected"; }} ?>><?php echo $label;?></option>
+                    <?php
+                        } 
+                    ?>
+                </select>
+            </td>
+            <td> 
+                <select class="control-select status" id="update_status" name="status">
+                    <?php 
+                        $configArray = ['1' => 'Enable', '0' => 'Disable'];
+                        foreach ($configArray as $key => $label) {
+                    ?> 
+                    <option value="<?php echo $key; ?>" <?php if($statusValue != NULL){if($statusValue == $key){echo "selected"; }} ?>><?php echo $label;?></option>
+                    <?php
+                        } 
+                    ?>
+                </select>
+            </td>
+            <td>
+                <button id="<?php echo $id; ?>" class="primary update" onclick="return void(0)" type="button">Update</button>
+                <button class="primary" onclick="if(confirm('Are you Sure?') == true){window.location = '../delete?id=<?php echo $id; ?>'}">
+                    Delete
+                </button>
+            </td>
+        </tr>
+    </tbody>
+    <?php
+        }
+    }
+    else{
+    // echo "No";
+    ?>
+    <tbody>
+        <tr>
+            <td colspan="5" style="text-align:center;">No Records Founds</td>
+        </tr>
+    </tbody>
+    <?php
+        }
+    ?>
+</table>
+
+<script>
+    require(["jquery", 'Magento_Ui/js/modal/confirm', 'mage/url'], function($, confirmation, urlBuilder) 
+    {
+    'use strict';
+    $(document).ready(function() {
+        $('.updated-msg').hide();
+    // insert Data code
+    $(".mymodal").on('click',function()
+            { 
+                // var updateid = $(this).attr('id');
+                var entity_id = null;
+                var name = $('.insert_name').val();
+                var gender = $('.insert_gender').val();
+                var status = $('.insert_status').val();
+                var insertUrl = '<?php echo $this->getUrl("usercrud/index/save")?>';
+                $.ajax({
+                    showLoader: true,
+                    type: "POST",
+                    url: insertUrl,
+                    data: { form_key: window.FORM_KEY, entity_id: entity_id, name: name, gender: gender, status: status},
+                    dataType: 'json',
+                    success: function(data) {
+                    $('.updated-msg').show();
+                    $('.updated-msg').html("Data Inserted Successfully..."); 
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                    }
+                }); 
+
+            });
+        });
+
+
+
+        $(document).ready(function() {
+        $('.updated-msg').hide();
+    // update Data code
+    $(".update").on('click',function()
+            { 
+                var updateid = $(this).attr('id');
+                var name = $('#update-'+updateid+' .name').val();
+                var gender = $('#update-'+updateid+' .gender').val();
+                var status = $('#update-'+updateid+' .status').val();
+                var updateurl = '<?php echo $this->getUrl("usercrud/index/save")?>';
+                $.ajax({
+                    showLoader: true,
+                    type: "POST",
+                    url: updateurl,
+                    data: { form_key: window.FORM_KEY, entity_id : updateid, name: name, gender: gender, status: status},
+                    dataType: 'json',
+                    success: function(data) {
+                    $('.updated-msg').show();
+                    $('.updated-msg').html("Data Updated Successfully..."); 
+                    setTimeout(function() {
+                    showLoader: false
+                    },1000);
+                    }
+                }); 
+
+            });
+        });
+    }); 
+
+
+
+    
+</script>

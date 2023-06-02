@@ -1,0 +1,262 @@
+<?php
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $model=$objectManager->create('Dev\UserAccountCrud\Model\View');
+    $redirect = $objectManager->get('\Magento\Framework\App\Response\Http');
+    $array=$model->getCollection();
+?>
+
+<div class="message message-success success updated-msg" style="display: none;">
+    <div class="suc-msg" data-ui-id="messages-message-success">
+    </div>
+</div>
+
+<div class="fieldset-wrapper customer-information">
+    <div class="fieldset-wrapper-title">
+        <span class="title">
+            <?php echo __('USER ACCOUNT CRUD') ?>
+        </span>
+        <div style="text-align: right;">
+            <button style="margin-bottom: 12px;" class="primary" id="add_new_row">Add New Row</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <form id="customform" method="post" action="<?php echo $block->getUrl("usercrud/grid/save"); ?>" >
+        <input type="hidden" name="form_key" value="<?= $block->getFormKey() ?>" />
+        <div class="name">
+            <div class="field-label">
+                <label for="name">First Name</label>
+            </div>
+            <div class="field-box">
+                <input type="text" class="admin__control-text" id="name" name="name" value="" required/>
+            </div>
+        </div>
+        <br/>
+        <div class="gender">
+            <div class="field-label">
+                <label for="gender">Gender</label>
+            </div>
+            <div class="field-box">
+                <select class="admin__control-select" id="gender" name="gender">
+                    <?php 
+                        $configArray = ['1' => 'Male', '2' => 'Female', '3' => 'Others'];
+                        foreach ($configArray as $key => $value) {
+                    ?> 
+                    <option value="<?php echo $key; ?>"><?php echo $value;?></option>
+                    <?php
+                        }
+                    ?>
+                </select>
+            </div>
+            <br/>
+            <div class="admin__actions-switch" data-role="switcher">
+                <input type="checkbox" onclick="toggleValue()" class="admin__actions-switch-checkbox" id="status" name="status" value="0">
+                <label class="admin__actions-switch-label" for="status">
+                    <span class="admin__actions-switch-text" data-text-on="Enable" data-text-off="Disable"></span>
+                </label>
+            </div>
+            <br/>
+        </div>
+        <br/>
+        <div style="text-align: right;">
+            <button type="submit" class="btn primary">Submit</button>
+        </div>
+    </form>
+</div>
+
+
+<?php  
+    if($array->getSize() > 0)
+    {
+?>
+        <table class="admin__table-secondary">
+            <tbody>
+            <?php echo $block->getChildHtml(); ?>
+            <tr>
+                <th><?php echo __('Name:') ?></th>
+                <th style="text-align: center;"><?php echo __('Gender:') ?></th>
+                <th style="text-align: center;"><?php echo __('Status') ?></th>
+                <th style="text-align: center;"><?php echo __('Actions') ?></th>
+            </tr>
+       
+
+<?php
+        $sno = 0;
+        foreach ($array as $value) 
+        {
+            $entity_id = $value['entity_id'];
+?>
+            <tr class="tr" id="update-<?php echo $entity_id; ?>">
+                <td>
+                    <input type="text" class="name" name="name" value="<?php echo $value['name']; ?>">
+                </td>
+                <td style="text-align: center;">
+                    <select class="admin__control-select gender" id="gender" name="gender">
+                        <?php 
+                            $configArray = ['1' => 'Male', '2' => 'Female', '3' => 'Others'];
+                            foreach ($configArray as $key => $label) {
+                        ?> 
+                        <option value="<?php echo $key; ?>" <?php if($value['gender'] != NULL){if($value['gender'] == $key){echo "selected"; }} ?>><?php echo $label;?></option>
+                        <?php
+                            } 
+                        ?>
+                    </select>
+                </td>
+                <td style="text-align: center;">
+                    <select class="admin__control-select update_status" id="update_status" name="update_status">
+                        <?php 
+                            $configArray = ['1' => 'Enable', '0' => 'Disable'];
+                            
+                            foreach ($configArray as $key => $label) {
+                        ?> 
+                        <option value="<?php echo $key; ?>" <?php if($value['status'] != NULL){if($value['status'] == $key){echo "selected"; }} ?>><?php echo $label;?></option>
+                        <?php
+                            } 
+                        ?>
+                    </select>
+                </td>
+                <td style="text-align: center;">
+                    <button id="<?php echo $entity_id; ?>" class="primary update" onclick="return void(0)" type="button">Update</button>
+                    <button type="button" class="primary" onclick="if(confirm('Are you Sure?') == true){window.location = '<?= $block->escapeUrl($block->getUrl('usercrud/grid/delete', ['id' => $entity_id])); ?>'}">Delete</button>
+                </td>
+            </tr>  
+<?php
+        $sno++;
+        }
+    } 
+    else 
+    { 
+?>
+    <table class="admin__table-secondary">
+            <tbody>
+            <?php echo $block->getChildHtml(); ?>
+            <tr>
+                <th><?php echo __('Name:') ?></th>
+                <th style="text-align: center;"><?php echo __('Gender:') ?></th>
+                <th style="text-align: center;"><?php echo __('Status') ?></th>
+                <th style="text-align: center;"><?php echo __('Actions') ?></th>
+            </tr>
+            <tr>
+                <td style="text-align: center; color: #676056; font-weight: 600; font-size: 1.6rem; padding: 3rem;" colspan="4">We couldn't find any records.</td>
+            </tr>
+    </tbody>
+    </table>
+<?php 
+    }
+?> 
+            </tbody>
+        </table>
+
+<script>
+    require(
+    [
+        'jquery',
+        'Magento_Ui/js/modal/modal'
+    ],
+    function(
+        $,
+        modal
+    ) {
+        var options = {
+            type: 'popup',
+            responsive: true,
+            innerScroll: true,
+            title: 'Add New Data',
+            buttons: [{
+                text: $.mage.__('Continue'),
+                class: 'bank-details',
+                click: function () {
+                    this.closeModal();
+                }
+            }],
+            opened: function($Event) {
+                $(".modal-footer").hide();
+            }
+        };
+
+        var popup = modal(options, $('#customform'));
+        $("#add_new_row").on('click',function(){ 
+            $("#customform").modal("openModal");
+        });
+
+    });
+</script>
+
+<script>
+    require(["jquery", 'Magento_Ui/js/modal/confirm', 'mage/url'], function($, confirmation, urlBuilder) 
+    {
+    'use strict';
+    $(document).ready(function() {
+        $('.updated-msg').hide();
+        // update Data code
+            $(".update").on('click',function()
+            { 
+                var updateid = $(this).attr('id');
+                var name = $('#update-'+updateid+' .name').val();
+                var gender = $('#update-'+updateid+' .gender').val();
+                var update_status = $('#update-'+updateid+' .update_status').val();
+                var updateurl = '<?php echo $this->getUrl("usercrud/grid/save")?>';
+                $.ajax({
+                    showLoader: true,
+                    type: "POST",
+                    url: updateurl,
+                    data: { form_key: window.FORM_KEY, id : updateid, name: name, gender: gender, update_status: update_status},
+                    dataType: 'json',
+                    success: function(data) {
+                        $('.updated-msg').show(); 
+                        $('.updated-msg').html("User Account Crud has been Updated."); 
+                        setTimeout(function() {
+                            $('.updated-msg').hide();
+                        },3000);
+                    }
+                }); 
+
+            });
+            // update Data code
+            
+            // Delete Data code
+            $(".row-del").on('click',function()
+            {
+                console.log($(this).attr('id'));
+                var delid = $(this).attr('id');
+                var deleteurl = '<?php echo $this->getUrl("usercrud/grid/delete")?>';
+                $.ajax({
+                    showLoader: true,
+                    type: "POST",
+                    url: deleteurl,
+                    data: { form_key: window.FORM_KEY, id : delid},
+                    dataType: 'json',
+                    success: function(data) {
+                    $('.updated-msg').show();
+                    $('.updated-msg').html("Deleted Successfully..."); 
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                    }
+                }); 
+
+            });
+            // Delete Data code
+        });
+    }); 
+
+    // function closeMessage()
+    // {
+    //     var x = document.getElementById("dev");
+    //     x.style = "display: none;";
+    // }
+</script>
+<script>
+    function toggleValue()
+    {
+        var x = document.getElementById("status");
+        if(x.value == 0)
+        {
+            x.value = 1;
+        }
+        else{
+            x.value = 0;
+        }
+    }
+</script>

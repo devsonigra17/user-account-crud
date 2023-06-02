@@ -1,0 +1,59 @@
+/* button.mymodal {
+    display: none;
+} */
+
+/* footer.modal-footer {
+    display: none;
+} */
+
+div.modal-footer {
+    border-top: 0px !important;
+}
+
+div.field-label {
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: medium;
+}
+
+div.modal-inner-wrap {
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+}
+
+input#update_name {
+    border: 0px;
+}
+
+select#update_gender {
+    border: 0px;
+}
+
+select#update_status {
+    border: 0px;
+}
+
+.inline {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    grid-gap: 50px;
+}
+
+button.primary{
+    background-color: #eb5202;
+    border-color: #eb5202;
+    color: #ffffff;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25);
+}
+button.primary:hover
+{
+    background-color: #ba4000;
+    border-color: #b84002;
+    box-shadow: 0 0 0 1px #023358;
+    color: #ffffff;
+    text-decoration: none;
+}
+  
